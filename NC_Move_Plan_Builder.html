@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NC Move Plan Builder</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      margin: 0;
+      padding: 30px 20px;
+      line-height: 1.5;
+    }
+    h1 {
+      color: #67e8f9;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 30px;
+    }
+    .section {
+      max-width: 900px;
+      margin: 0 auto 30px;
+      background: #1e2937;
+      border-radius: 16px;
+      padding: 24px;
+      border: 2px solid #334155;
+    }
+    .section h2 {
+      margin-top: 0;
+      color: #67e8f9;
+    }
+    input, select, textarea {
+      background: #334155;
+      color: #e2e8f0;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 1em;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+    button {
+      background: #0ea5e9;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background: #0284c8;
+    }
+    .task-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 80px;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .output-box {
+      background: #0f172a;
+      border: 2px solid #475569;
+      border-radius: 12px;
+      padding: 20px;
+      font-family: ui-monospace, monospace;
+      white-space: pre-wrap;
+      font-size: 0.95em;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .small-btn {
+      padding: 6px 12px;
+      font-size: 0.85em;
+      background: #475569;
+    }
+  </style>
+</head>
+<body>
+  <h1>NC Move Plan Builder</h1>
+  <p class="subtitle">Create clean, importable plans for the Task Tracker</p>
+
+  <div class="section">
+    <h2>1. Create a Category</h2>
+    
+    <label>Category Name</label>
+    <input type="text" id="catName" placeholder="e.g. House Prep & Sale" value="House Prep & Sale">
+
+    <label>Target Completion Date</label>
+    <input type="date" id="catTarget" value="2026-10-15">
+
+    <h3 style="margin-top: 20px;">Tasks in this Category</h3>
+    <div id="task-list"></div>
+
+    <button onclick="addTaskRow()">+ Add Another Task</button>
+    <button onclick="generateJSON()" style="background:#16a34a;">Generate JSON for Import</button>
+  </div>
+
+  <div class="section">
+    <h2>2. Copy the JSON below</h2>
+    <p style="color:#94a3b8; margin-top:0;">Copy everything in the box and paste it into the Task Tracker’s Import box.</p>
+    <div id="output" class="output-box" style="min-height: 180px;">Your generated JSON will appear here...</div>
+    <button onclick="copyToClipboard()" class="small-btn">Copy to Clipboard</button>
+    <button onclick="clearAll()" class="small-btn" style="background:#7f1d1d; color:#fda4af;">Clear Everything</button>
+
+    <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #475569; display: flex; gap: 12px; flex-wrap: wrap;">
+      <a href="NC_Move_Task_Tracker_v5.html" target="_blank" 
+         style="display: inline-block; background: #0ea5e9; color: white; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 600;">
+        → Open NC Move Task Tracker to Import
+      </a>
+      <a href="index.html" target="_blank" 
+         style="display: inline-block; background: #475569; color: #e2e8f0; text-decoration: none; padding: 12px 20px; border-radius: 10px; font-weight: 500;">
+        ← Back to Tools Home
+      </a>
+    </div>
+  </div>
+
+  <script>
+    let taskCounter = 0;
+
+    function addTaskRow(name = "", due = "", abc = "B") {
+      const container = document.getElementById("task-list");
+      const row = document.createElement("div");
+      row.className = "task-row";
+      row.innerHTML = `
+        <input type="text" placeholder="Task name" value="${name}">
+        <input type="date" value="${due}">
+        <select>
+          <option value="A" ${abc === "A" ? "selected" : ""}>A — Critical</option>
+          <option value="B" ${abc === "B" ? "selected" : ""}>B — Important</option>
+          <option value="C" ${abc === "C" ? "selected" : ""}>C — Nice to have</option>
+        </select>
+        <button onclick="this.parentElement.remove()" class="small-btn" style="background:#7f1d1d; color:#fda4af;">Remove</button>
+      `;
+      container.appendChild(row);
+      taskCounter++;
+    }
+
+    function generateJSON() {
+      const catName = document.getElementById("catName").value.trim() || "Untitled Category";
+      const catTarget = document.getElementById("catTarget").value;
+
+      const rows = document.querySelectorAll("#task-list .task-row");
+      const tasks = [];
+
+      rows.forEach(row => {
+        const inputs = row.querySelectorAll("input, select");
+        const name = inputs[0].value.trim();
+        const due = inputs[1].value;
+        const abc = inputs[2].value;
+
+        if (name) {
+          tasks.push({ name, due, abc });
+        }
+      });
+
+      const data = {
+        categories: [
+          {
+            name: catName,
+            targetDate: catTarget || null,
+            tasks: tasks
+          }
+        ]
+      };
+
+      const jsonString = JSON.stringify(data, null, 2);
+      document.getElementById("output").textContent = jsonString;
+    }
+
+    function copyToClipboard() {
+      const output = document.getElementById("output").textContent;
+      if (!output || output.includes("Your generated JSON")) {
+        alert("Please generate the JSON first.");
+        return;
+      }
+      navigator.clipboard.writeText(output).then(() => {
+        const originalText = event.target.innerText;
+        event.target.innerText = "Copied!";
+        setTimeout(() => {
+          event.target.innerText = "Copy to Clipboard";
+        }, 1500);
+      }).catch(() => {
+        // Fallback
+        const textarea = document.createElement("textarea");
+        textarea.value = output;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        alert("JSON copied to clipboard (fallback).");
+      });
+    }
+
+    function clearAll() {
+      if (!confirm("Clear everything?")) return;
+      document.getElementById("catName").value = "";
+      document.getElementById("catTarget").value = "";
+      document.getElementById("task-list").innerHTML = "";
+      document.getElementById("output").textContent = "Your generated JSON will appear here...";
+      taskCounter = 0;
+    }
+
+    // Start with one empty task row
+    window.onload = function() {
+      addTaskRow("Deep clean interior", "2026-08-20", "A");
+      addTaskRow("Stage main living areas", "2026-09-05", "B");
+    }
+  </script>
+</body>
+</html>
