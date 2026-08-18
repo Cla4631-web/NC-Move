@@ -1,1 +1,439 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room-by-Room Sale Prep • NC Move</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e2937;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #0ea5e9;
+      --green: #16a34a;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(180deg, #0f172a 0%, #1e2937 100%);
+      color: var(--text);
+      margin: 0;
+      padding: 20px 16px 60px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    h1 {
+      color: #67e8f9;
+      text-align: center;
+      margin: 0 0 6px;
+      font-size: 1.6rem;
+    }
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+    .top-bar {
+      max-width: 720px;
+      margin: 0 auto 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background: #475569;
+    }
+    .btn-danger {
+      background: #7f1d1d;
+      color: #fda4af;
+    }
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
+    .summary {
+      max-width: 720px;
+      margin: 0 auto 24px;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: space-around;
+      text-align: center;
+    }
+    .summary strong {
+      display: block;
+      font-size: 1.4rem;
+      color: #67e8f9;
+    }
+    .summary span {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .room {
+      max-width: 720px;
+      margin: 0 auto 20px;
+      background: var(--card);
+      border: 3px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .room-header {
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      background: #1e2937;
+    }
+    .room-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: #67e8f9;
+    }
+    .room-meta {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .room-body {
+      padding: 0 18px 18px;
+      display: none;
+    }
+    .room.open .room-body {
+      display: block;
+    }
+    .condition {
+      margin: 12px 0;
+    }
+    .condition textarea {
+      width: 100%;
+      min-height: 60px;
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid #475569;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.95rem;
+      resize: vertical;
+    }
+    .update {
+      background: #334155;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      border-left: 6px solid #64748b;
+    }
+    .update.A { border-left-color: #dc2626; }
+    .update.B { border-left-color: #ea580c; }
+    .update.C { border-left-color: #64748b; }
+    .update.done {
+      opacity: 0.55;
+    }
+    .update-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .update-name {
+      flex: 1 1 180px;
+      font-weight: 500;
+      font-size: 1.05rem;
+    }
+    .update-name input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 500;
+      padding: 4px 0;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    select, input[type="text"], input[type="number"] {
+      background: #475569;
+      color: var(--text);
+      border: 1px solid #64748b;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+    }
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      padding: 16px;
+    }
+    .footer-links {
+      max-width: 720px;
+      margin: 30px auto 0;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .footer-links a {
+      color: #67e8f9;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Room-by-Room Sale Prep</h1>
+  <p class="subtitle">Leisure World apartment • Highest-ROI updates</p>
+
+  <div class="top-bar">
+    <button class="btn" onclick="addRoom()">+ Add Room</button>
+    <button class="btn btn-secondary" onclick="exportData()">Export Backup</button>
+    <button class="btn btn-secondary" onclick="expandAll()">Expand All</button>
+  </div>
+
+  <div class="summary" id="summary">
+    <div><strong id="total-updates">0</strong><span>Total Updates</span></div>
+    <div><strong id="a-count">0</strong><span>Priority A</span></div>
+    <div><strong id="done-count">0</strong><span>Done</span></div>
+  </div>
+
+  <div id="rooms"></div>
+
+  <div class="footer-links">
+    <a href="index.html">← Tools Home</a>
+    <a href="NC_Move_Task_Tracker_v5.html">Task Tracker</a>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'ncMoveRoomPrep_v1';
+
+    let rooms = [];
+
+    const defaultRooms = [
+      { id: 1, name: 'Living Room', condition: '', updates: [] },
+      { id: 2, name: 'Kitchen', condition: '', updates: [] },
+      { id: 3, name: 'Primary Bedroom', condition: '', updates: [] },
+      { id: 4, name: 'Secondary Bedroom / Office', condition: '', updates: [] },
+      { id: 5, name: 'Bathroom 1', condition: '', updates: [] },
+      { id: 6, name: 'Bathroom 2', condition: '', updates: [] },
+      { id: 7, name: 'Entry / Hallways', condition: '', updates: [] },
+      { id: 8, name: 'Patio / Outdoor / Storage', condition: '', updates: [] }
+    ];
+
+    function load() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          rooms = JSON.parse(saved);
+        } catch (e) {
+          rooms = JSON.parse(JSON.stringify(defaultRooms));
+        }
+      } else {
+        rooms = JSON.parse(JSON.stringify(defaultRooms));
+      }
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(rooms));
+      updateSummary();
+    }
+
+    function updateSummary() {
+      let total = 0, aCount = 0, done = 0;
+      rooms.forEach(r => {
+        r.updates.forEach(u => {
+          total++;
+          if (u.priority === 'A') aCount++;
+          if (u.status === 'Done') done++;
+        });
+      });
+      document.getElementById('total-updates').textContent = total;
+      document.getElementById('a-count').textContent = aCount;
+      document.getElementById('done-count').textContent = done;
+    }
+
+    function render() {
+      const container = document.getElementById('rooms');
+      container.innerHTML = '';
+
+      rooms.forEach((room, rIdx) => {
+        const openClass = room._open ? ' open' : '';
+        const aCount = room.updates.filter(u => u.priority === 'A' && u.status !== 'Done').length;
+        const total = room.updates.length;
+        const done = room.updates.filter(u => u.status === 'Done').length;
+
+        const div = document.createElement('div');
+        div.className = 'room' + openClass;
+        div.innerHTML = `
+          <div class="room-header" onclick="toggleRoom(${rIdx})">
+            <div>
+              <h2>${room.name}</h2>
+              <div class="room-meta">${total} updates • ${done} done${aCount ? ' • ' + aCount + ' Priority A open' : ''}</div>
+            </div>
+            <div style="font-size:1.4rem; color:var(--muted);">${room._open ? '▼' : '▶'}</div>
+          </div>
+          <div class="room-body">
+            <div class="condition">
+              <label style="font-size:0.9rem; color:var(--muted);">Quick condition note</label>
+              <textarea placeholder="e.g. Walls need touch-up paint, carpet worn near entry..." 
+                onchange="updateCondition(${rIdx}, this.value)">${room.condition || ''}</textarea>
+            </div>
+            <div id="updates-${rIdx}">
+              ${room.updates.length === 0 
+                ? '<div class="empty">No updates yet. Add the first one.</div>'
+                : room.updates.map((u, uIdx) => renderUpdate(rIdx, uIdx, u)).join('')}
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-small" onclick="addUpdate(${rIdx})">+ Add Update</button>
+              <button class="btn btn-small btn-secondary" onclick="renameRoom(${rIdx})">Rename Room</button>
+              <button class="btn btn-small btn-danger" onclick="deleteRoom(${rIdx})">Delete Room</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      updateSummary();
+    }
+
+    function renderUpdate(rIdx, uIdx, u) {
+      const doneClass = u.status === 'Done' ? ' done' : '';
+      return `
+        <div class="update ${u.priority || 'B'}${doneClass}">
+          <div class="update-top">
+            <div class="update-name">
+              <input value="${escapeHtml(u.name)}" onchange="updateField(${rIdx}, ${uIdx}, 'name', this.value)" placeholder="What needs doing?">
+            </div>
+            <div class="controls">
+              <select onchange="updateField(${rIdx}, ${uIdx}, 'priority', this.value)">
+                <option value="A" ${u.priority==='A'?'selected':''}>A — High ROI</option>
+                <option value="B" ${u.priority==='B'?'selected':''}>B — Important</option>
+                <option value="C" ${u.priority==='C'?'selected':''}>C — Nice</option>
+              </select>
+              <select onchange="updateField(${rIdx}, ${uIdx}, 'status', this.value)">
+                <option value="Not started" ${u.status==='Not started'?'selected':''}>Not started</option>
+                <option value="In progress" ${u.status==='In progress'?'selected':''}>In progress</option>
+                <option value="Done" ${u.status==='Done'?'selected':''}>Done</option>
+              </select>
+              <input type="text" placeholder="$ cost" value="${u.cost || ''}" style="width:80px"
+                onchange="updateField(${rIdx}, ${uIdx}, 'cost', this.value)">
+              <button class="btn btn-small btn-danger" onclick="deleteUpdate(${rIdx}, ${uIdx})">×</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+    }
+
+    function toggleRoom(idx) {
+      rooms[idx]._open = !rooms[idx]._open;
+      render();
+    }
+
+    function expandAll() {
+      rooms.forEach(r => r._open = true);
+      render();
+    }
+
+    function updateCondition(idx, val) {
+      rooms[idx].condition = val;
+      save();
+    }
+
+    function updateField(rIdx, uIdx, field, val) {
+      rooms[rIdx].updates[uIdx][field] = val;
+      save();
+      render();
+    }
+
+    function addUpdate(rIdx) {
+      rooms[rIdx].updates.push({
+        id: Date.now(),
+        name: '',
+        priority: 'A',
+        status: 'Not started',
+        cost: ''
+      });
+      rooms[rIdx]._open = true;
+      save();
+      render();
+      setTimeout(() => {
+        const inputs = document.querySelectorAll(`#updates-${rIdx} .update-name input`);
+        if (inputs.length) inputs[inputs.length-1].focus();
+      }, 50);
+    }
+
+    function deleteUpdate(rIdx, uIdx) {
+      if (!confirm('Remove this update?')) return;
+      rooms[rIdx].updates.splice(uIdx, 1);
+      save();
+      render();
+    }
+
+    function addRoom() {
+      const name = prompt('Room name?');
+      if (!name || !name.trim()) return;
+      rooms.push({
+        id: Date.now(),
+        name: name.trim(),
+        condition: '',
+        updates: [],
+        _open: true
+      });
+      save();
+      render();
+    }
+
+    function renameRoom(idx) {
+      const name = prompt('New room name?', rooms[idx].name);
+      if (!name || !name.trim()) return;
+      rooms[idx].name = name.trim();
+      save();
+      render();
+    }
+
+    function deleteRoom(idx) {
+      if (!confirm(`Delete "${rooms[idx].name}" and all its updates?`)) return;
+      rooms.splice(idx, 1);
+      save();
+      render();
+    }
+
+    function exportData() {
+      const data = { rooms, exported: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'NC_Room_Prep_' + new Date().toISOString().slice(0,10) + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    load();
+    render();
+  </script>
+</body>
+</html>
