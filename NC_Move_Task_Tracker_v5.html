@@ -9,8 +9,21 @@
   <p style="font-family:system-ui;padding:24px">Loading Task Tracker…</p>
   <script>
     (async function () {
+      const TRACKER_ID = 'daixq15tx1rljkk';
       const url = 'https://cdn.jsdelivr.net/gh/Cla4631-web/NC-Move@cf19e6380738a9ab5848eacca331d8dcf827fe67/NC_Move_Task_Tracker_v5.html';
-      const html = await fetch(url).then(function (r) { return r.text(); });
+      let html = await fetch(url).then(function (r) { return r.text(); });
+      html = html.replace(
+        'let pbRecordId = null;',
+        "let pbRecordId = '" + TRACKER_ID + "';"
+      );
+      html = html.replace(
+        "const records = await pb.collection('tracker_data').getList(1, 1, { sort: '-updated' });\n        if (records.items.length > 0) {\n          const record = records.items[0];",
+        "let record = null;\n        try { record = await pb.collection('tracker_data').getOne('" + TRACKER_ID + "'); } catch (e) {}\n        if (!record) {\n          const records = await pb.collection('tracker_data').getList(1, 50, { sort: '-updated' });\n          record = (records.items || []).find(function (r) { return r.state && Array.isArray(r.state.categories) && r.state.app !== 'asheville-clutter-clear'; }) || null;\n        }\n        if (record) {"
+      );
+      html = html.replace(
+        "const record = await pb.collection('tracker_data').create({ state: payload });\n          pbRecordId = record.id;",
+        "await pb.collection('tracker_data').update('" + TRACKER_ID + "', { state: payload });"
+      );
       document.open();
       document.write(html);
       document.close();
