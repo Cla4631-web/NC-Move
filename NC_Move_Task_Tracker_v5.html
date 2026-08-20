@@ -1,1 +1,20 @@
-placeholder-skip
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NC Move Task Tracker</title>
+</head>
+<body>
+  <p style="font-family:system-ui;padding:24px">Loading Task Tracker…</p>
+  <script>
+    (async function () {
+      const url = 'https://cdn.jsdelivr.net/gh/Cla4631-web/NC-Move@cf19e6380738a9ab5848eacca331d8dcf827fe67/NC_Move_Task_Tracker_v5.html';
+      const html = await fetch(url).then(function (r) { return r.text(); });
+      document.open();
+      document.write(html);
+      document.close();
+    })();
+  </script>
+</body>
+</html>
