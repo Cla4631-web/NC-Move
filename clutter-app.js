@@ -99,7 +99,7 @@ async function save() {
     setSyncStatus("Synced just now");
   } catch (err) {
     console.warn("PocketBase save failed (data still saved on this device)", err);
-    setSyncStatus("Saved on this device • cloud sync paused");
+    setSyncStatus("Saved on this device - cloud sync paused");
   }
 }
 
@@ -134,11 +134,11 @@ async function load(fromRefresh) {
       await save();
       setSyncStatus("Uploaded this device's list to the cloud");
     } else {
-      setSyncStatus("Cloud ready • no items yet");
+      setSyncStatus("Cloud ready - no items yet");
     }
   } catch (err) {
     console.warn("PocketBase load failed, using this device", err);
-    setSyncStatus("Offline • using this device's copy");
+    setSyncStatus("Offline - using this device's copy");
   }
   render();
 }
@@ -275,9 +275,9 @@ function printCompleted() {
   document.getElementById("print-items").innerHTML = completed.map(function (item) {
     return '<div class="print-item"><strong>' +
       escapeHtml(item.name) + '</strong>' +
-      (item.location ? " — " + escapeHtml(item.location) : "") +
+      (item.location ? " \u2014 " + escapeHtml(item.location) : "") +
       '<br><span style="font-size:0.9rem; color:#555;">Cleared: ' +
-      (item.completedDate || "—") + '</span></div>';
+      (item.completedDate || "\u2014") + '</span></div>';
   }).join("");
   window.print();
 }
@@ -300,17 +300,17 @@ function render() {
       '<div><div class="item-name">' + escapeHtml(item.name) + '</div>' +
       '<div class="item-meta">' +
       (item.location ? escapeHtml(item.location) : "") +
-      (item.completed && item.completedDate ? " • Cleared " + item.completedDate : "") +
+      (item.completed && item.completedDate ? " \u2022 Cleared " + item.completedDate : "") +
       '</div></div></li>';
   }).join("");
 }
 
 function escapeHtml(str) {
   return String(str)
-    .replace(/&/g, "&")
-    .replace(/</g, "<")
-    .replace(/>/g, ">")
-    .replace(/"/g, """);
+    .replace(/&/g, "\u0026amp;")
+    .replace(/</g, "\u0026lt;")
+    .replace(/>/g, "\u0026gt;")
+    .replace(/"/g, "\u0026quot;");
 }
 
 document.addEventListener("visibilitychange", function () {
