@@ -1,0 +1,171 @@
+:root {
+  --royal-blue: #0f1a3d;
+  --royal-blue-mid: #1a274d;
+  --ivy-green: #3d6b4f;
+  --ivy-light: #5a8f6a;
+  --cream: #f5f7fa;
+  --soft-white: #e8eef5;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--royal-blue);
+  color: var(--cream);
+  min-height: 100vh;
+  line-height: 1.45;
+  padding: 1rem;
+  -webkit-text-size-adjust: 100%;
+}
+.container { max-width: 640px; margin: 0 auto; }
+header {
+  text-align: center;
+  padding: 1.1rem 0.5rem 1rem;
+  border-bottom: 3px solid var(--ivy-green);
+  margin-bottom: 1.2rem;
+}
+h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.15rem; }
+.subtitle { font-size: 0.88rem; color: var(--soft-white); opacity: 0.85; }
+.panel {
+  background: var(--royal-blue-mid);
+  border: 1px solid var(--ivy-green);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.panel h2 { font-size: 1.02rem; margin-bottom: 0.65rem; color: var(--ivy-light); }
+.add-form { display: flex; flex-direction: column; gap: 0.5rem; }
+input[type="text"] {
+  width: 100%;
+  background: #0c1630;
+  border: 1px solid var(--ivy-green);
+  border-radius: 8px;
+  color: var(--cream);
+  padding: 0.75rem 0.85rem;
+  font-size: 1.05rem;
+}
+input::placeholder { color: #8a9bb5; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.35rem; }
+button {
+  background: var(--ivy-green);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.15rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 48px;
+  flex: 1 1 auto;
+}
+button:active { opacity: 0.85; }
+button.secondary {
+  background: transparent;
+  border: 1px solid var(--ivy-green);
+  color: var(--soft-white);
+}
+button.small {
+  min-height: 42px;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.9rem;
+  flex: 0 0 auto;
+}
+.progress-bar {
+  height: 8px;
+  background: #0c1630;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.7rem 0 0.35rem;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--ivy-green);
+  width: 0%;
+  transition: width 0.25s ease;
+}
+.progress-text { font-size: 0.88rem; color: var(--soft-white); opacity: 0.9; }
+.item-list { list-style: none; margin-top: 0.75rem; }
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #162848;
+  border-left: 4px solid var(--ivy-green);
+  border-radius: 8px;
+  padding: 0.9rem 0.95rem;
+  margin-bottom: 0.5rem;
+}
+.item.completed { opacity: 0.5; border-left-color: #555; }
+.item.completed .item-name { text-decoration: line-through; }
+.item input[type="checkbox"] {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.1rem;
+  accent-color: var(--ivy-green);
+  flex-shrink: 0;
+}
+.item-name { font-size: 1.08rem; font-weight: 500; }
+.item-meta { font-size: 0.82rem; color: var(--soft-white); opacity: 0.75; margin-top: 0.15rem; }
+.empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--soft-white);
+  opacity: 0.65;
+  font-size: 0.95rem;
+}
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ivy-green);
+  color: white;
+  padding: 0.7rem 1.3rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+  z-index: 100;
+}
+.toast.show { opacity: 1; }
+details { margin-top: 0.5rem; }
+details summary { cursor: pointer; color: var(--ivy-light); font-size: 0.9rem; padding: 0.35rem 0; }
+textarea {
+  width: 100%;
+  height: 85px;
+  background: #0c1630;
+  border: 1px solid var(--ivy-green);
+  border-radius: 8px;
+  color: var(--cream);
+  padding: 0.65rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.82rem;
+  margin-top: 0.45rem;
+  resize: vertical;
+}
+#print-area { display: none; }
+@media print {
+  body * { visibility: hidden; }
+  #print-area, #print-area * { visibility: visible; }
+  #print-area {
+    display: block !important;
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%;
+    background: white;
+    color: black;
+    padding: 1.5rem;
+  }
+  .print-header { border-bottom: 2px solid #3d6b4f; padding-bottom: 0.75rem; margin-bottom: 1.1rem; }
+  .print-item { padding: 0.45rem 0; border-bottom: 1px solid #ddd; }
+}
+footer {
+  text-align: center;
+  margin-top: 1.6rem;
+  padding-top: 0.9rem;
+  font-size: 0.78rem;
+  color: var(--soft-white);
+  opacity: 0.55;
+  border-top: 1px solid rgba(61, 107, 79, 0.35);
+}
+#sync-status { display: block; margin-top: 0.35rem; font-size: 0.75rem; opacity: 0.9; }
