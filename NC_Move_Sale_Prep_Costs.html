@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sale-Prep Costs • NC Move</title>
+  <script src="https://cdn.jsdelivr.net/npm/pocketbase@0.21.5/dist/pocketbase.umd.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e2937;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #0ea5e9;
+      --green: #4ade80;
+      --border: #334155;
+      --danger: #7f1d1d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(180deg, #0f172a 0%, #1e2937 100%);
+      color: var(--text);
+      margin: 0;
+      padding: 18px 14px 120px;
+      line-height: 1.45;
+      min-height: 100vh;
+    }
+    h1 {
+      color: #67e8f9;
+      text-align: center;
+      margin: 0 0 4px;
+      font-size: 1.55rem;
+    }
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+    #sync-status {
+      display: block;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #67e8f9;
+      opacity: 0.85;
+      margin-bottom: 14px;
+    }
+    .nav {
+      max-width: 720px;
+      margin: 0 auto 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .nav a {
+      color: #67e8f9;
+      text-decoration: none;
+      background: #162033;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .total-bar {
+      max-width: 720px;
+      margin: 0 auto 18px;
+      background: var(--card);
+      border: 2px solid #0ea5e9;
+      border-radius: 16px;
+      padding: 16px 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      text-align: center;
+    }
+    .total-bar .big { grid-column: 1 / -1; }
+    .total-bar strong {
+      display: block;
+      font-size: 2rem;
+      color: var(--green);
+      line-height: 1.1;
+    }
+    .total-bar span { color: var(--muted); font-size: 0.82rem; }
+    .stat strong { display: block; font-size: 1.25rem; color: #67e8f9; }
+    .panel {
+      max-width: 720px;
+      margin: 0 auto 16px;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 1.05rem; color: #67e8f9; }
+    .cat-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .cat-head .sub { color: var(--green); font-weight: 700; font-size: 1rem; }
+    label { display: block; font-size: 0.82rem; color: var(--muted); margin: 8px 0 4px; }
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%;
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid #475569;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 1rem;
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 11px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      min-height: 46px;
+    }
+    .btn-secondary { background: #475569; }
+    .btn-danger { background: var(--danger); color: #fecaca; }
+    .btn-small { padding: 7px 12px; font-size: 0.85rem; min-height: 40px; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .presets button { flex: 1 1 auto; }
+    .item {
+      background: #334155;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+      border-left: 6px solid #64748b;
+    }
+    .item.off { opacity: 0.5; }
+    .item-top { display: flex; gap: 10px; align-items: flex-start; }
+    .item input[type="checkbox"] {
+      width: 1.4rem;
+      height: 1.4rem;
+      margin-top: 6px;
+      accent-color: var(--green);
+      flex-shrink: 0;
+    }
+    .item-body { flex: 1; min-width: 0; }
+    .item-name {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 2px 0;
+    }
+    .item-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
+    .item-meta input[type="number"] { width: 120px; padding: 8px 10px; }
+    .notes { width: 100%; margin-top: 6px; min-height: 38px; font-size: 0.88rem; color: #cbd5e1; }
+    .note {
+      max-width: 720px;
+      margin: 0 auto 16px;
+      background: #422006;
+      border: 1px solid #b45309;
+      color: #fde68a;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+    }
+    .footer-links { max-width: 720px; margin: 24px auto 0; text-align: center; font-size: 0.9rem; }
+    .footer-links a { color: #67e8f9; margin: 0 8px; display: inline-block; padding: 6px 0; }
+    .sticky-total {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: #0b1220;
+      border-top: 2px solid #0ea5e9;
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+      text-align: center;
+      z-index: 20;
+    }
+    .sticky-total b { color: var(--green); font-size: 1.25rem; }
+  </style>
+</head>
+<body>
+  <h1>Sale-Prep Costs</h1>
+  <p class="subtitle">Leisure World numbers • lean a little high • edit or add anything</p>
+  <span id="sync-status">Connecting…</span>
+
+  <nav class="nav">
+    <a href="index.html">Tools Home</a>
+    <a href="NC_Move_Room_Prep.html">Room-by-Room</a>
+    <a href="NC_Move_Task_Tracker_v5.html">Task Tracker</a>
+    <a href="NC_Move_Plan_Builder.html">Plan Builder</a>
+    <a href="NC_Move_Feedback_Form.html">Weekly Feedback</a>
+    <a href="https://asheville-clutter-clear.vercel.app">Clutter Clear</a>
+  </nav>
+
+  <div class="note">
+    Uncheck anything you skip. The green total is only checked items.
+    Countertops use a $5,000 planning number, not the $20,000 full-kitchen figure.
+  </div>
+
+  <div class="total-bar" id="total-bar">
+    <div class="big">
+      <strong id="included-total">$0</strong>
+      <span>Included sale-prep total</span>
+    </div>
+    <div class="stat">
+      <strong id="item-count">0</strong>
+      <span>Items checked</span>
+    </div>
+    <div class="stat">
+      <strong id="skipped-total">$0</strong>
+      <span>Unchecked / optional</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Add a cost</h2>
+    <div class="row">
+      <div>
+        <label for="new-cat">Category</label>
+        <select id="new-cat">
+          <option>Kitchen</option>
+          <option>Living Room</option>
+          <option>Primary Bedroom</option>
+          <option>Secondary Bedroom</option>
+          <option>Bathroom</option>
+          <option>Whole Unit</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label for="new-cost">Cost ($)</label>
+        <input type="number" id="new-cost" min="0" step="50" value="0">
+      </div>
+    </div>
+    <label for="new-name">What is it?</label>
+    <input type="text" id="new-name" placeholder="e.g. Bathroom mirror and lights" autocomplete="off">
+    <label for="new-notes">Note (optional)</label>
+    <input type="text" id="new-notes" placeholder="Quote, store, or why this amount" autocomplete="off">
+    <div class="btn-row">
+      <button class="btn" onclick="addItem()">Add to list</button>
+      <button class="btn btn-secondary" onclick="exportData()">Export backup</button>
+    </div>
+    <div class="presets">
+      <button class="btn btn-secondary btn-small" onclick="addPreset('Secondary Bedroom','Second bedroom carpet',1400,'Same mid-grade package as the primary bedroom.')">+ 2nd bedroom carpet $1,400</button>
+      <button class="btn btn-secondary btn-small" onclick="addPreset('Whole Unit','LVP in main living areas',7000,'If Mutual allows hard floors. Check first.')">+ LVP main rooms $7,000</button>
+      <button class="btn btn-secondary btn-small" onclick="addPreset('Bathroom','Bath fixtures, mirror, lighting',400,'Quick-win refresh, not a remodel.')">+ Bath refresh $400</button>
+    </div>
+  </div>
+
+  <div id="categories"></div>
+
+  <div class="footer-links">
+    <a href="index.html">← Tools Home</a>
+    <a href="NC_Move_Room_Prep.html">Room-by-Room</a>
+    <a href="NC_Move_Task_Tracker_v5.html">Task Tracker</a>
+  </div>
+
+  <div class="sticky-total">
+    Included total: <b id="sticky-total">$0</b>
+  </div>
+
+  <script src="sale-prep-costs.js"></script>
+</body>
+</html>
