@@ -11,12 +11,12 @@ const defaultItems = [
   { id: 1, category: "Kitchen", name: "Fridge magnets", cost: 0, notes: "Remove for photos. Time only.", included: true },
   { id: 2, category: "Kitchen", name: "Repair cabinet chips", cost: 250, notes: "Filler and touch-up, or a short handyman visit.", included: true },
   { id: 3, category: "Kitchen", name: "Cabinet hinges and hardware", cost: 400, notes: "Broken or sagging hinges plus new pulls. $1,000 is high unless it is a full cabinet day.", included: true },
-  { id: 4, category: "Kitchen", name: "Replace counters (quartz)", cost: 5000, notes: "Small Leisure World kitchen, installed. $20,000 is full-remodel money — keep that for NC.", included: true },
+  { id: 4, category: "Kitchen", name: "Replace counters (quartz)", cost: 5000, notes: "Small Leisure World kitchen, installed. $20,000 is full-remodel money. Keep that for NC.", included: true },
   { id: 5, category: "Living Room", name: "Open the front-door view", cost: 0, notes: "Furniture and clutter, not taking out a wall. Already in progress.", included: true },
-  { id: 6, category: "Primary Bedroom", name: "Replace worn carpet", cost: 1400, notes: "One bedroom, mid-grade nylon or triexta, new pad, tear-out. Typical range $900–$1,800.", included: true },
+  { id: 6, category: "Primary Bedroom", name: "Replace worn carpet", cost: 1400, notes: "One bedroom, mid-grade nylon or triexta, new pad, tear-out. Typical range $900 to $1,800.", included: true },
   { id: 7, category: "Primary Bedroom", name: "Haul oversized bed and mattress", cost: 150, notes: "Empty the room before the carpet crew arrives.", included: true },
   { id: 8, category: "Primary Bedroom", name: "Storage unit (6 months)", cost: 1200, notes: "Optional. About $200/month nearby. Unchecked because it eats NC remodel money.", included: false },
-  { id: 9, category: "Whole Unit", name: "Interior paint (neutral)", cost: 4500, notes: "Pro paint, whole apartment. Highest photo ROI. DIY materials about $250–$500.", included: true }
+  { id: 9, category: "Whole Unit", name: "Interior paint (neutral)", cost: 4500, notes: "Pro paint, whole apartment. Highest photo ROI. DIY materials about $250 to $500.", included: true }
 ];
 
 const categoryOrder = [
@@ -45,11 +45,12 @@ function parseCost(val) {
 }
 
 function escapeHtml(str) {
+  var amp = String.fromCharCode(38);
   return String(str || "")
-    .replace(/&/g, "&")
-    .replace(/</g, "<")
-    .replace(/>/g, ">")
-    .replace(/"/g, """);
+    .replace(/&/g, amp + "amp;")
+    .replace(/</g, amp + "lt;")
+    .replace(/>/g, amp + "gt;")
+    .replace(/"/g, amp + "quot;");
 }
 
 function normalizeItems(list) {
@@ -98,7 +99,7 @@ async function save() {
     setSyncStatus("Synced just now");
   } catch (err) {
     console.warn(err);
-    setSyncStatus("Saved on this device — cloud sync paused");
+    setSyncStatus("Saved on this device - cloud sync paused");
   }
 }
 
@@ -117,10 +118,14 @@ function totals() {
 
 function updateTotals() {
   var t = totals();
-  document.getElementById("included-total").textContent = money(t.included);
-  document.getElementById("sticky-total").textContent = money(t.included);
-  document.getElementById("skipped-total").textContent = money(t.skipped);
-  document.getElementById("item-count").textContent = t.count;
+  var a = document.getElementById("included-total");
+  var b = document.getElementById("sticky-total");
+  var c = document.getElementById("skipped-total");
+  var d = document.getElementById("item-count");
+  if (a) a.textContent = money(t.included);
+  if (b) b.textContent = money(t.included);
+  if (c) c.textContent = money(t.skipped);
+  if (d) d.textContent = t.count;
 }
 
 function render() {
@@ -160,7 +165,10 @@ function render() {
     });
     html += "</div>";
   });
-  document.getElementById("categories").innerHTML = html || '<div class="panel">No items yet. Add one above.</div>';
+  var container = document.getElementById("categories");
+  if (container) {
+    container.innerHTML = html || '<div class="panel">No items yet. Add one above.</div>';
+  }
   updateTotals();
 }
 
@@ -243,6 +251,8 @@ async function loadFromCloud() {
   } else {
     items = JSON.parse(JSON.stringify(defaultItems));
   }
+  render();
+  setSyncStatus("Loading from cloud...");
   try {
     var record = null;
     try { record = await pb.collection(PB_COLLECTION).getOne(COST_RECORD_ID); } catch (e) {}
@@ -258,6 +268,7 @@ async function loadFromCloud() {
       if (cloudItems.length) {
         items = cloudItems;
         writeLocal();
+        render();
         setSyncStatus("Synced with cloud");
       } else {
         await save();
@@ -269,13 +280,18 @@ async function loadFromCloud() {
     }
   } catch (err) {
     console.warn(err);
-    setSyncStatus("Offline — using this device's copy");
+    render();
+    setSyncStatus("Offline - using this device copy");
   }
-  render();
 }
 
 document.addEventListener("visibilitychange", function () {
   if (document.visibilityState === "visible") loadFromCloud();
 });
 
-loadFromCloud();
+loadFromCloud().catch(function (err) {
+  console.warn(err);
+  if (!items.length) items = JSON.parse(JSON.stringify(defaultItems));
+  render();
+  setSyncStatus("Could not reach cloud - using planning numbers");
+});
